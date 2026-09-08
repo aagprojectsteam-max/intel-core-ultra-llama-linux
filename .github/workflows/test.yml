@@ -1,0 +1,20 @@
+name: Tests
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  source-and-install:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Shell syntax
+        run: bash -n bin/aag-llama-control lib/intel-sycl.sh install.sh uninstall.sh
+      - name: Unit and isolated installation tests
+        env:
+          PYTHONPATH: lib
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: python3 -B -m unittest discover -s tests -v
+      - name: Source and history artifact checks
+        run: python3 -B tools/check_release.py --history
